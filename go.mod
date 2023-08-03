@@ -1,4 +1,4 @@
-module github.com/hashicorp/go-msgpack/v2
+module github.com/hashicorp/go-msgpack
 
 go 1.19
 
