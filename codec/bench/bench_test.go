@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-msgpack/v2/codec/internal"
+	"github.com/hashicorp/go-msgpack/codec/internal"
 )
 
 // Sample way to run:

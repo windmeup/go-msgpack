@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-msgpack/v2/codec/internal/testdata"
+	"github.com/hashicorp/go-msgpack/codec/internal/testdata"
 )
 
 // Tests that msgpack correctly deserializes all legacy hashicorp/raft entries, byte-for-byte.

@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/hashicorp/go-msgpack/v2/codec"
+	. "github.com/hashicorp/go-msgpack/codec"
 )
 
 var benchmarkGroupOnce sync.Once

@@ -50,7 +50,7 @@ import (
 	"sync"
 	"testing"
 
-	. "github.com/hashicorp/go-msgpack/v2/codec"
+	. "github.com/hashicorp/go-msgpack/codec"
 )
 
 type testHED struct {
@@ -125,8 +125,8 @@ var (
 	benchVerify           bool
 	benchUnscientificRes  bool = false
 	benchMapStringKeyOnly bool
-	//depth of 0 maps to ~400bytes json-encoded string, 1 maps to ~1400 bytes, etc
-	//For depth>1, we likely trigger stack growth for encoders, making benchmarking unreliable.
+	// depth of 0 maps to ~400bytes json-encoded string, 1 maps to ~1400 bytes, etc
+	// For depth>1, we likely trigger stack growth for encoders, making benchmarking unreliable.
 	benchDepth     int
 	benchInitDebug bool
 )
