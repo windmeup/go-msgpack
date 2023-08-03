@@ -26,7 +26,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-msgpack/v2/codec/internal"
+	"github.com/hashicorp/go-msgpack/codec/internal"
 )
 
 func init() {
@@ -124,7 +124,7 @@ var (
 	timeToCompare1 = time.Date(2012, 2, 2, 2, 2, 2, 2000, timeLoc).UTC()
 	timeToCompare2 = time.Date(1900, 2, 2, 2, 2, 2, 2000, timeLoc).UTC()
 	timeToCompare3 = time.Unix(0, 270).UTC() // use value that must be encoded as uint64 for nanoseconds (for cbor/msgpack comparison)
-	//timeToCompare4 = time.Time{}.UTC() // does not work well with simple cbor time encoding (overflow)
+	// timeToCompare4 = time.Time{}.UTC() // does not work well with simple cbor time encoding (overflow)
 	timeToCompare4 = time.Unix(-2013855848, 4223).UTC()
 
 	table []interface{} // main items we encode
@@ -242,8 +242,8 @@ func (x *testUnixNanoTimeExt) UpdateExt(dest interface{}, v interface{}) {
 		*tt = time.Unix(0, v2).UTC()
 	case uint64:
 		*tt = time.Unix(0, int64(v2)).UTC()
-	//case float64:
-	//case string:
+	// case float64:
+	// case string:
 	default:
 		panic(fmt.Sprintf("unsupported format for time conversion: expecting int64/uint64; got %T", v))
 	}
@@ -351,7 +351,7 @@ func (x *wrapBytesExt) UpdateExt(dest interface{}, v interface{}) {
 //	    Bit 14 = dst\_on: set to 1 if dst is in effect at the time, or 0 if not.
 //	    Bits 13..0 = timezone offset in minutes. It is a signed integer in Big Endian format.
 func bincEncodeTime(t time.Time) []byte {
-	//t := rv.Interface().(time.Time)
+	// t := rv.Interface().(time.Time)
 	tsecs, tnsecs := t.Unix(), t.Nanosecond()
 	var (
 		bd   byte
@@ -383,7 +383,7 @@ func bincEncodeTime(t time.Time) []byte {
 		bd = bd | 0x20
 		// Note that Go Libs do not give access to dst flag.
 		_, zoneOffset := t.Zone()
-		//zoneName, zoneOffset := t.Zone()
+		// zoneName, zoneOffset := t.Zone()
 		zoneOffset /= 60
 		z := uint16(zoneOffset)
 		bigen.PutUint16(btmp[:2], z)
@@ -412,10 +412,10 @@ func bincDecodeTime(bs []byte) (tt time.Time, err error) {
 		n = ((bd >> 2) & 0x7) + 1
 		i2 = i + n
 		copy(btmp[8-n:], bs[i:i2])
-		//if first bit of bs[i] is set, then fill btmp[0..8-n] with 0xff (ie sign extend it)
+		// if first bit of bs[i] is set, then fill btmp[0..8-n] with 0xff (ie sign extend it)
 		if bs[i]&(1<<7) != 0 {
 			copy(btmp[0:8-n], bsAll0xff)
-			//for j,k := byte(0), 8-n; j < k; j++ {	btmp[j] = 0xff }
+			// for j,k := byte(0), 8-n; j < k; j++ {	btmp[j] = 0xff }
 		}
 		i = i2
 		tsec = int64(bigen.Uint64(btmp[:]))
@@ -442,9 +442,9 @@ func bincDecodeTime(bs []byte) (tt time.Time, err error) {
 	// i = i2
 	// sign extend sign bit into top 2 MSB (which were dst bits):
 	if tz&(1<<13) == 0 { // positive
-		tz = tz & 0x3fff //clear 2 MSBs: dst bits
+		tz = tz & 0x3fff // clear 2 MSBs: dst bits
 	} else { // negative
-		tz = tz | 0xc000 //set 2 MSBs: dst bits
+		tz = tz | 0xc000 // set 2 MSBs: dst bits
 	}
 	tzint := int16(tz)
 	if tzint == 0 {
@@ -609,8 +609,8 @@ func testInit() {
 			"false":        false,
 			"uint16(1616)": uint16(1616),
 		},
-		//add a complex combo map in here. (map has list which has map)
-		//note that after the first thing, everything else should be generic.
+		// add a complex combo map in here. (map has list which has map)
+		// note that after the first thing, everything else should be generic.
 		map[string]interface{}{
 			"list": []interface{}{
 				int16(1616),
@@ -691,7 +691,7 @@ func testTableVerify(f testVerifyFlag, h Handle) (av []interface{}) {
 				av[i] = skipVerifyVal
 				continue
 			}
-			//av[i] = testVerifyVal(v, testVerifyMapTypeSame)
+			// av[i] = testVerifyVal(v, testVerifyMapTypeSame)
 			switch v.(type) {
 			case []interface{}:
 				av[i] = testVerifyVal(v, f, h)
@@ -727,7 +727,7 @@ func testVerifyValInt(v int64, isMsgp bool) (v2 interface{}) {
 }
 
 func testVerifyVal(v interface{}, f testVerifyFlag, h Handle) (v2 interface{}) {
-	//for python msgpack,
+	// for python msgpack,
 	//  - all positive integers are unsigned 64-bit ints
 	//  - all floats are float64
 	_, isMsgp := h.(*MsgpackHandle)
@@ -876,8 +876,8 @@ func testReadWriteCloser(c io.ReadWriteCloser) io.ReadWriteCloser {
 // doTestCodecTableOne allows us test for different variations based on arguments passed.
 func doTestCodecTableOne(t *testing.T, testNil bool, h Handle,
 	vs []interface{}, vsVerify []interface{}) {
-	//if testNil, then just test for when a pointer to a nil interface{} is passed. It should work.
-	//Current setup allows us test (at least manually) the nil interface or typed interface.
+	// if testNil, then just test for when a pointer to a nil interface{} is passed. It should work.
+	// Current setup allows us test (at least manually) the nil interface or typed interface.
 	logT(t, "================ TestNil: %v ================\n", testNil)
 	for i, v0 := range vs {
 		logT(t, "..............................................")
@@ -947,7 +947,7 @@ func testCodecTableOne(t *testing.T, h Handle) {
 
 	numPrim, numMap, idxTime, idxMap := testTableNumPrimitives, testTableNumMaps, testTableIdxTime, testTableNumPrimitives+2
 
-	//println("#################")
+	// println("#################")
 	tableVerify := testTableVerify(testVerifyMapTypeSame, h)
 	tableTestNilVerify := testTableVerify(testVerifyDoNil|testVerifyMapTypeStrIntf, h)
 	switch v := h.(type) {
@@ -959,8 +959,8 @@ func testCodecTableOne(t *testing.T, h Handle) {
 		doTestCodecTableOne(t, false, h, table, tableVerify)
 		v.WriteExt = oldWriteExt
 	case *JsonHandle:
-		//skip []interface{} containing time.Time, as it encodes as a number, but cannot decode back to time.Time.
-		//As there is no real support for extension tags in json, this must be skipped.
+		// skip []interface{} containing time.Time, as it encodes as a number, but cannot decode back to time.Time.
+		// As there is no real support for extension tags in json, this must be skipped.
 		doTestCodecTableOne(t, false, h, table[:numPrim], tableVerify[:numPrim])
 		doTestCodecTableOne(t, false, h, table[idxMap:], tableVerify[idxMap:])
 	default:
@@ -977,17 +977,17 @@ func testCodecTableOne(t *testing.T, h Handle) {
 
 	oldMapType, v.MapType = v.MapType, testMapStrIntfTyp
 	// defer func() { v.MapType = oldMapType }()
-	//skip time.Time, []interface{} containing time.Time, last map, and newStruc
+	// skip time.Time, []interface{} containing time.Time, last map, and newStruc
 	doTestCodecTableOne(t, true, h, table[:idxTime], tableTestNilVerify[:idxTime])
 	doTestCodecTableOne(t, true, h, table[idxMap:idxMap+numMap-1], tableTestNilVerify[idxMap:idxMap+numMap-1]) // failing one for msgpack
 	v.MapType = oldMapType
 	// func TestMsgpackNilIntf(t *testing.T) {
 
-	//do last map and newStruc
+	// do last map and newStruc
 	idx2 := idxMap + numMap - 1
 	doTestCodecTableOne(t, true, h, table[idx2:], tableTestNilVerify[idx2:])
-	//TODO? What is this one?
-	//doTestCodecTableOne(t, true, h, table[17:18], tableTestNilVerify[17:18])
+	// TODO? What is this one?
+	// doTestCodecTableOne(t, true, h, table[17:18], tableTestNilVerify[17:18])
 }
 
 func testCodecMiscOne(t *testing.T, h Handle) {
@@ -1361,7 +1361,7 @@ func testCodecRpcOne(t *testing.T, rr Rpc, h Handle, doRequest bool, exitSleepMs
 
 	go serverFn()
 	runtime.Gosched()
-	//time.Sleep(100 * time.Millisecond)
+	// time.Sleep(100 * time.Millisecond)
 	if exitSleepMs == 0 {
 		defer ln.Close()
 		defer exitFn()
@@ -1641,7 +1641,7 @@ func doTestRawValue(t *testing.T, name string, h Handle) {
 	var v, v2 TestRawValue
 	var bs, bs2 []byte
 
-	i = 1234 //1234567890
+	i = 1234 // 1234567890
 	v = TestRawValue{I: i}
 	e := NewEncoderBytes(&bs, h)
 	e.MustEncode(v.I)
@@ -1681,8 +1681,8 @@ func doTestPythonGenStreams(t *testing.T, name string, h Handle) {
 	defer os.RemoveAll(tmpdir)
 	logT(t, "tmpdir: %v", tmpdir)
 	cmd := exec.Command("python", "test.py", "testdata", tmpdir)
-	//cmd.Stdin = strings.NewReader("some input")
-	//cmd.Stdout = &out
+	// cmd.Stdin = strings.NewReader("some input")
+	// cmd.Stdout = &out
 	var cmdout []byte
 	if cmdout, err = cmd.CombinedOutput(); err != nil {
 		logT(t, "-------- Error running test.py testdata. Err: %v", err)
@@ -1699,11 +1699,11 @@ func doTestPythonGenStreams(t *testing.T, name string, h Handle) {
 		// 	v = int64(0)
 		// }
 		bh.MapType = oldMapType
-		//load up the golden file based on number
-		//decode it
-		//compare to in-mem object
-		//encode it again
-		//compare to output stream
+		// load up the golden file based on number
+		// decode it
+		// compare to in-mem object
+		// encode it again
+		// compare to output stream
 		logT(t, "..............................................")
 		logT(t, "         Testing: #%d: %T, %#v\n", i, v, v)
 		var bss []byte
@@ -1724,8 +1724,8 @@ func doTestPythonGenStreams(t *testing.T, name string, h Handle) {
 		if v == skipVerifyVal {
 			continue
 		}
-		//no need to indirect, because we pass a nil ptr, so we already have the value
-		//if v1 != nil { v1 = reflect.Indirect(reflect.ValueOf(v1)).Interface() }
+		// no need to indirect, because we pass a nil ptr, so we already have the value
+		// if v1 != nil { v1 = reflect.Indirect(reflect.ValueOf(v1)).Interface() }
 		if err = internal.DeepEqual(v, v1); err == nil {
 			logT(t, "++++++++ Objects match: %T, %v", v, v)
 		} else {
@@ -1791,7 +1791,7 @@ func doTestMsgpackRpcSpecGoClientToPythonSvc(t *testing.T) {
 	defer cl.Close()
 	var rstr string
 	checkErrT(t, cl.Call("EchoStruct", TestRpcABC{"Aa", "Bb", "Cc"}, &rstr))
-	//checkEqualT(t, rstr, "{'A': 'Aa', 'B': 'Bb', 'C': 'Cc'}")
+	// checkEqualT(t, rstr, "{'A': 'Aa', 'B': 'Bb', 'C': 'Cc'}")
 	var mArgs MsgpackSpecRpcMultiArgs = []interface{}{"A1", "B2", "C3"}
 	checkErrT(t, cl.Call("Echo123", mArgs, &rstr))
 	checkEqualT(t, rstr, "1:A1 2:B2 3:C3", "rstr=")
@@ -1804,7 +1804,7 @@ func doTestMsgpackRpcSpecPythonClientToGoSvc(t *testing.T) {
 	}
 	testOnce.Do(testInitAll)
 	port := testCodecRpcOne(t, MsgpackSpecRpc, testMsgpackH, false, 1*time.Second)
-	//time.Sleep(1000 * time.Millisecond)
+	// time.Sleep(1000 * time.Millisecond)
 	cmd := exec.Command("python", "test.py", "rpc-client-go-service", strconv.Itoa(port))
 	var cmdout []byte
 	var err error
